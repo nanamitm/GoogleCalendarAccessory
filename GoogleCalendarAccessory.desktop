@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=GoogleCalendarAccessory
+Exec=GoogleCalendarAccessory
+Icon=app
+Comment=Google Calendar Desktop Accessory
+Terminal=false
+Categories=Utility;

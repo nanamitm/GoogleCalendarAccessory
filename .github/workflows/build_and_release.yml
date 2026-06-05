@@ -1,0 +1,147 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - 'v*'
+  pull_request:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Build Windows (MSVC)
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.0'
+          host: 'windows'
+          target: 'desktop'
+          arch: 'win64_msvc2022_64'
+
+      - name: Configure CMake
+        run: |
+          cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: |
+          cmake --build build --config Release
+
+      - name: Package Windows
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist
+          Copy-Item build\Release\GoogleCalendarAccessory.exe dist\
+          if (Test-Path calendar_accessory.example.ini) {
+            Copy-Item calendar_accessory.example.ini dist\
+          }
+          windeployqt dist\GoogleCalendarAccessory.exe
+          Compress-Archive -Path dist\* -DestinationPath GoogleCalendarAccessory-Windows.zip
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GoogleCalendarAccessory-Windows
+          path: GoogleCalendarAccessory-Windows.zip
+
+  build-linux:
+    name: Build Linux (AppImage)
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install libfuse2 (for AppImage packaging)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libfuse2 libgl1-mesa-dev
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.8.0'
+          host: 'linux'
+          target: 'desktop'
+
+      - name: Install LinuxDeploy
+        id: install-linuxdeploy
+        uses: miurahr/install-linuxdeploy-action@v1.8.0
+        with:
+          plugins: qt
+
+      - name: Extract PNG from ICO
+        run: |
+          python -m pip install Pillow
+          python -c "from PIL import Image; Image.open('assets/app.ico').save('assets/app.png')"
+
+      - name: Configure CMake
+        run: |
+          cmake -B build -S . -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: |
+          cmake --build build --config Release
+
+      - name: Create AppImage
+        run: |
+          export QMAKE=qmake
+          export VERSION=0.1.0
+          linuxdeploy \
+            --appdir AppDir \
+            --plugin qt \
+            --output appimage \
+            --desktop-file GoogleCalendarAccessory.desktop \
+            --executable build/GoogleCalendarAccessory \
+            --icon-file assets/app.png
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GoogleCalendarAccessory-Linux
+          path: GoogleCalendarAccessory-*.AppImage
+
+  release:
+    name: Create GitHub Release
+    needs: [build-windows, build-linux]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download Windows Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: GoogleCalendarAccessory-Windows
+          path: release-artifacts
+
+      - name: Download Linux Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: GoogleCalendarAccessory-Linux
+          path: release-artifacts
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release-artifacts/GoogleCalendarAccessory-Windows.zip
+            release-artifacts/GoogleCalendarAccessory-*.AppImage
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
