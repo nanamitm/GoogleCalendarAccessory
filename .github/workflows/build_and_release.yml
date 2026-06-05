@@ -101,7 +101,7 @@ jobs:
         run: |
           export QMAKE=qmake
           export VERSION=0.1.0
-          linuxdeploy \
+          ${{ steps.install-linuxdeploy.outputs.linuxdeploy }} \
             --appdir AppDir \
             --plugin qt \
             --output appimage \
