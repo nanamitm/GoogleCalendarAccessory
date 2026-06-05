@@ -40,7 +40,14 @@ jobs:
 
       - name: Build
         run: |
-          cmake --build build --config Release
+          cmake --build build --config Release > build_log.txt 2>&1
+
+      - name: Upload Build Log on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log-windows
+          path: build_log.txt
 
       - name: Package Windows
         shell: pwsh
@@ -95,7 +102,14 @@ jobs:
 
       - name: Build
         run: |
-          cmake --build build --config Release
+          cmake --build build --config Release > build_log.txt 2>&1
+
+      - name: Upload Build Log on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log-linux
+          path: build_log.txt
 
       - name: Create AppImage
         run: |
