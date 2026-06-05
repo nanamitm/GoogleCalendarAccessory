@@ -3,6 +3,7 @@
 #include "GoogleCalendarClient.h"
 
 #include <QGridLayout>
+#include <QLabel>
 #include <QMap>
 #include <QPushButton>
 #include <QSpinBox>
