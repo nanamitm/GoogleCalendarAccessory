@@ -50,7 +50,7 @@ jobs:
           if (Test-Path calendar_accessory.example.ini) {
             Copy-Item calendar_accessory.example.ini dist\
           }
-          windeployqt dist\GoogleCalendarAccessory.exe
+          windeployqt --no-compiler-runtime dist\GoogleCalendarAccessory.exe
           Compress-Archive -Path dist\* -DestinationPath GoogleCalendarAccessory-Windows.zip
 
       - name: Upload Artifact
