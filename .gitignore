@@ -1,0 +1,43 @@
+# Build outputs
+build/
+build-*/
+out/
+
+# CMake / Visual Studio generated files
+CMakeCache.txt
+CMakeFiles/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+cmake_install.cmake
+*_autogen/
+*.dir/
+x64/
+
+# Runtime configuration and deployed binaries
+calendar_accessory.ini
+*.exe
+*.dll
+*.pdb
+*.ilk
+*.lib
+*.exp
+
+# Qt deployment folders
+generic/
+iconengines/
+imageformats/
+networkinformation/
+platforms/
+styles/
+tls/
+translations/
+
+# Local/editor files
+.vs/
+.vscode/
+*.user
+*.log
+Thumbs.db
+desktop.ini
