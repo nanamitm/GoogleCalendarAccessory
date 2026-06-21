@@ -21,7 +21,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up MSVC
         uses: ilammy/msvc-dev-cmd@v1
@@ -54,7 +54,7 @@ jobs:
           Compress-Archive -Path dist\* -DestinationPath GoogleCalendarAccessory-Windows.zip
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: GoogleCalendarAccessory-Windows
           path: GoogleCalendarAccessory-Windows.zip
@@ -64,7 +64,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Install libfuse2 (for AppImage packaging)
         run: |
@@ -110,7 +110,7 @@ jobs:
             --icon-file assets/app.png
 
       - name: Upload Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: GoogleCalendarAccessory-Linux
           path: GoogleCalendarAccessory-*.AppImage
@@ -124,19 +124,19 @@ jobs:
       contents: write
     steps:
       - name: Download Windows Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: GoogleCalendarAccessory-Windows
           path: release-artifacts
 
       - name: Download Linux Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: GoogleCalendarAccessory-Linux
           path: release-artifacts
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             release-artifacts/GoogleCalendarAccessory-Windows.zip
