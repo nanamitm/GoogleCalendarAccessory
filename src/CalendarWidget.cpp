@@ -600,7 +600,10 @@ void CalendarWidget::loadVisibleMonth()
     const QDate lastDay(visibleMonth_.year(), visibleMonth_.month(), firstDay.daysInMonth());
     monthLabel_->setText(firstDay.toString(QStringLiteral("yyyy年 M月")));
     renderCalendar();
-    client_.fetchEventsForRange(firstDay, lastDay);
+    // Extend range to cover overflow cells from adjacent months shown in the grid
+    const QDate gridStart = firstDay.addDays(-(firstDay.dayOfWeek() % 7));
+    const QDate gridEnd = gridStart.addDays(dayButtons_.size() - 1);
+    client_.fetchEventsForRange(gridStart, gridEnd);
 }
 
 void CalendarWidget::renderCalendar()
